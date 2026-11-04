@@ -1,0 +1,61 @@
+#!/bin/sh
+# Ülesanne 5 - paroolide genereerimine ja logimine
+# Autor: Kertu Puna
+#
+# Kasutamine:  sh genereeri_paroolid kasutajad
+# Iga failis oleva kasutaja jaoks genereeritakse 8-märgiline parool (pwgen),
+# kasutaja luuakse süsteemi ja kasutaja:parool salvestatakse logifaili.
+
+if [ $# -ne 1 ]; then
+    echo "Kasutamine: $0 kasutajate_fail"
+    exit 1
+fi
+
+FAIL="$1"
+LOGIFAIL="loodud_kasutajad_paroolidega"
+
+if [ ! -f "$FAIL" ] || [ ! -r "$FAIL" ]; then
+    echo "Fail $FAIL puudub või ei ole loetav"
+    exit 2
+fi
+
+# Kontrollime, kas pwgen on olemas, puudumisel paigaldame
+if ! command -v pwgen >/dev/null 2>&1; then
+    echo "pwgen puudub, paigaldan..."
+    apt-get update -qq && apt-get install -y pwgen
+    if ! command -v pwgen >/dev/null 2>&1; then
+        echo "pwgen paigaldamine ebaõnnestus"
+        exit 3
+    fi
+fi
+
+# Logifaili sisu on tundlik - ainult omanik (root) tohib seda lugeda
+touch "$LOGIFAIL"
+chmod 600 "$LOGIFAIL"
+
+while IFS= read -r NIMI || [ -n "$NIMI" ]; do
+    [ -z "$NIMI" ] && continue
+
+    if id "$NIMI" >/dev/null 2>&1; then
+        echo "Kasutaja $NIMI on juba olemas, jätan vahele"
+        continue
+    fi
+
+    # pwgen -0: ilma numbriteta (ainult tähed), pikkus 8, 1 parool
+    PAROOL=$(pwgen -0 8 1)
+
+    useradd -m -d "/home/$NIMI" -s /bin/bash "$NIMI"
+    if [ $? -ne 0 ]; then
+        echo "Probleem kasutaja $NIMI lisamisega"
+        continue
+    fi
+
+    echo "$NIMI:$PAROOL" | chpasswd
+    if [ $? -eq 0 ]; then
+        # Salvestame kasutaja ja parooli logifaili kujul kasutaja:parool
+        echo "$NIMI:$PAROOL" >> "$LOGIFAIL"
+        echo "Kasutaja $NIMI on lisatud, parool salvestatud faili $LOGIFAIL"
+    else
+        echo "Kasutaja $NIMI lisati, aga parooli määramine ebaõnnestus"
+    fi
+done < "$FAIL"
