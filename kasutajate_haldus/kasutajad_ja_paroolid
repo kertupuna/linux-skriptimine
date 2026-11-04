@@ -1,0 +1,53 @@
+#!/bin/sh
+# Ülesanne 4 - kasutajad ja paroolid on eraldi failides
+# Autor: Kertu Puna
+#
+# Kasutamine:  sh kasutajad_ja_paroolid kasutajad paroolid
+# 1. failis on igal real kasutajanimi, 2. failis samal real vastav parool.
+# Kõik vajalik on selles skriptis, teisi skripte välja ei kutsuta.
+
+if [ $# -ne 2 ]; then
+    echo "Kasutamine: $0 kasutajate_fail paroolide_fail"
+    exit 1
+fi
+
+KASUTAJAD="$1"
+PAROOLID="$2"
+
+# Kontrollime mõlema faili olemasolu
+for F in "$KASUTAJAD" "$PAROOLID"; do
+    if [ ! -f "$F" ] || [ ! -r "$F" ]; then
+        echo "Fail $F puudub või ei ole loetav"
+        exit 2
+    fi
+done
+
+# paste -d: liidab kaks faili rida-realt kokku kujule kasutaja:parool
+# (töötab ka siis, kui viimase rea järel reavahetust pole)
+paste -d: "$KASUTAJAD" "$PAROOLID" | while IFS=: read -r NIMI PAROOL; do
+    [ -z "$NIMI" ] && continue
+
+    # Parool peab olemas olema
+    if [ -z "$PAROOL" ]; then
+        echo "Kasutajal $NIMI puudub parool, jätan vahele"
+        continue
+    fi
+
+    if id "$NIMI" >/dev/null 2>&1; then
+        echo "Kasutaja $NIMI on juba olemas, jätan vahele"
+        continue
+    fi
+
+    useradd -m -d "/home/$NIMI" -s /bin/bash "$NIMI"
+    if [ $? -ne 0 ]; then
+        echo "Probleem kasutaja $NIMI lisamisega"
+        continue
+    fi
+
+    echo "$NIMI:$PAROOL" | chpasswd
+    if [ $? -eq 0 ]; then
+        echo "Kasutaja $NIMI on lisatud koos parooliga"
+    else
+        echo "Kasutaja $NIMI lisati, aga parooli määramine ebaõnnestus"
+    fi
+done
