@@ -1,6 +1,5 @@
 #!/bin/sh
 # Ülesanne 4 - kasutajad ja paroolid on eraldi failides
-# Autor: Kertu Puna
 #
 # Kasutamine:  sh kasutajad_ja_paroolid kasutajad paroolid
 # 1. failis on igal real kasutajanimi, 2. failis samal real vastav parool.
@@ -34,20 +33,3 @@ paste -d: "$KASUTAJAD" "$PAROOLID" | while IFS=: read -r NIMI PAROOL; do
     fi
 
     if id "$NIMI" >/dev/null 2>&1; then
-        echo "Kasutaja $NIMI on juba olemas, jätan vahele"
-        continue
-    fi
-
-    useradd -m -d "/home/$NIMI" -s /bin/bash "$NIMI"
-    if [ $? -ne 0 ]; then
-        echo "Probleem kasutaja $NIMI lisamisega"
-        continue
-    fi
-
-    echo "$NIMI:$PAROOL" | chpasswd
-    if [ $? -eq 0 ]; then
-        echo "Kasutaja $NIMI on lisatud koos parooliga"
-    else
-        echo "Kasutaja $NIMI lisati, aga parooli määramine ebaõnnestus"
-    fi
-done
