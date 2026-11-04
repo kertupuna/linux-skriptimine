@@ -29,7 +29,52 @@ apt-get install -y wget ca-certificates gnupg debconf-utils
 # - mysql-server
 # - teenuse käivitamine
 # /root/.my.cnf loomine
+ROOT_PAROOL="qwerty"
+APT_CONFIG="mysql-apt-config_0.8.40-1_all.deb"
 
+if on_paigaldatud mysql-community-server; then
+    echo "MySQL 8.0 on juba paigaldatud."
+else
+    echo "MySQL 8.0 ei ole paigaldatud, paigaldan..."
+
+    # Vastused mysql-apt-config küsimustele: versioon 8.0, tools välja, Ok
+    echo "mysql-apt-config mysql-apt-config/select-server select mysql-8.0" | debconf-set-selections
+    echo "mysql-apt-config mysql-apt-config/select-tools select Disabled" | debconf-set-selections
+    echo "mysql-apt-config mysql-apt-config/select-product select Ok" | debconf-set-selections
+
+    # Root parool ja autentimise valik
+    echo "mysql-community-server mysql-community-server/root-pass password $ROOT_PAROOL" | debconf-set-selections
+    echo "mysql-community-server mysql-community-server/re-root-pass password $ROOT_PAROOL" | debconf-set-selections
+    echo "mysql-community-server mysql-server/default-auth-override select Use Strong Password Encryption (RECOMMENDED)" | debconf-set-selections
+
+    # Oracle MySQL APT repositoorium
+    wget -O /tmp/$APT_CONFIG https://dev.mysql.com/get/$APT_CONFIG
+    dpkg -i /tmp/$APT_CONFIG
+
+    # MySQL serveri paigaldus
+    apt-get update
+    apt-get install -y mysql-server
+
+    # Kontrollime tulemust
+    if on_paigaldatud mysql-community-server; then
+        echo "MySQL 8.0 paigaldamine õnnestus."
+    else
+        echo "VIGA: MySQL paigaldamine ebaõnnestus!"
+        exit 1
+    fi
+fi
+
+# Teenus töötab ja käivitub koos süsteemiga
+systemctl enable --now mysql
+
+# /root/.my.cnf - mysql klient ei küsi parooli
+cat > /root/.my.cnf <<EOF
+[client]
+host=localhost
+user=root
+password=$ROOT_PAROOL
+EOF
+chmod 600 /root/.my.cnf
 # 3. Apache2
 # Kontroll: kas Apache2 on olemas?
 # Kui ei ole:
