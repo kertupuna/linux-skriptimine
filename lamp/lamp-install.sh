@@ -118,5 +118,26 @@ EOF
 # Kui ei ole:
 # - PHP ja moodulite paigaldamine
 # info.php loomine
+# Ubuntu 24.04 vaikimisi PHP versioon on 8.3
+# (juhendis toodud php8.2 paketid on Debian 12 jaoks)
+if on_paigaldatud php8.3; then
+    echo "PHP 8.x on juba paigaldatud: $(php -v | head -n 1)"
+else
+    echo "PHP 8.x ei ole paigaldatud, paigaldan..."
+    apt-get install -y php8.3 php8.3-cli php8.3-common php8.3-mysql libapache2-mod-php8.3
 
+    # Kontrollime tulemust
+    if on_paigaldatud php8.3; then
+        echo "PHP paigaldamine õnnestus: $(php -v | head -n 1)"
+    else
+        echo "VIGA: PHP paigaldamine ebaõnnestus!"
+        exit 1
+    fi
+fi
+
+# PHP testleht
+echo "<?php phpinfo(); ?>" > /var/www/html/info.php
+
+# Apache taaskäivitus, et PHP moodul laaditaks
+systemctl restart apache2
 # 5. Kontrollid ja raport
