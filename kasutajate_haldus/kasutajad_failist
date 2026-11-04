@@ -1,0 +1,31 @@
+#!/bin/sh
+# Ülesanne 2 - kasutajad failist
+# Autor: Kertu Puna
+#
+# Kasutamine:  sh kasutajad_failist kasutajad
+# Failis on igal real üks kasutajanimi. Iga nime jaoks kutsutakse välja
+# skript lisa_kasutaja (peab asuma samas kaustas).
+
+if [ $# -ne 1 ]; then
+    echo "Kasutamine: $0 failinimi"
+    exit 1
+fi
+
+FAIL="$1"
+
+# Kontrollime, et fail on olemas ja loetav
+if [ ! -f "$FAIL" ] || [ ! -r "$FAIL" ]; then
+    echo "Fail $FAIL puudub või ei ole loetav"
+    exit 2
+fi
+
+# Kaust, kus see skript (ja ka lisa_kasutaja) asub
+SKRIPTI_KAUST=$(dirname "$0")
+
+# Loeme faili rida haaval.
+# "|| [ -n "$NIMI" ]" tagab, et loetakse ka viimane rida, kui selle järel reavahetust pole.
+while IFS= read -r NIMI || [ -n "$NIMI" ]; do
+    # Tühjad read jätame vahele
+    [ -z "$NIMI" ] && continue
+    sh "$SKRIPTI_KAUST/lisa_kasutaja" "$NIMI"
+done < "$FAIL"
