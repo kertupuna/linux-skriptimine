@@ -1,6 +1,5 @@
 #!/bin/sh
 # Ülesanne 2 - kasutajad failist
-# Autor: Kertu Puna
 #
 # Kasutamine:  sh kasutajad_failist kasutajad
 # Failis on igal real üks kasutajanimi. Iga nime jaoks kutsutakse välja
