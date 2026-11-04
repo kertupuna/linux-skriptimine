@@ -1,10 +1,23 @@
 #!/bin/sh
-# Ülesanne 5 - paroolide genereerimine ja logimine
-# Autor: Kertu Puna
+# Ülesanded 5 ja 6 - paroolide genereerimine, logimine ja root-õiguste kontroll
 #
-# Kasutamine:  sh genereeri_paroolid kasutajad
+# Kasutamine (ainult root, mitte sudo kaudu!):
+#   su -
+#   sh genereeri_paroolid kasutajad
 # Iga failis oleva kasutaja jaoks genereeritakse 8-märgiline parool (pwgen),
 # kasutaja luuakse süsteemi ja kasutaja:parool salvestatakse logifaili.
+
+# --- Ülesanne 6: root-õiguste kontroll ---
+# id -u annab kasutaja ID; root kasutaja ID on 0
+if [ "$(id -u)" -ne 0 ]; then
+    echo "Skripti võib käivitada ainult root kasutaja!"
+    exit 1
+fi
+# sudo seab muutuja SUDO_USER - kui see on olemas, käivitati skript sudo kaudu
+if [ -n "$SUDO_USER" ]; then
+    echo "Skripti käivitamine sudo kaudu on keelatud! Logi sisse root kasutajana (su -)."
+    exit 1
+fi
 
 if [ $# -ne 1 ]; then
     echo "Kasutamine: $0 kasutajate_fail"
