@@ -1,6 +1,5 @@
 #!/bin/sh
 # Ülesanne 1 - kasutaja loomine käsurealise parameetri abil
-# Autor: Kertu Puna
 #
 # Kasutamine:  sh lisa_kasutaja kasutajanimi
 # Skript loob uue kasutaja (ilma paroolita) ja tema kodukataloogi /home/kasutajanimi.
