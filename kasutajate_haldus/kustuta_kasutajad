@@ -1,0 +1,23 @@
+#!/bin/sh
+# Abiskript - testkasutajate kustutamine enne uut katsetust
+# Autor: Kertu Puna
+#
+# Kasutamine:  sh kustuta_kasutajad failinimi
+# Sobib nii failile "kasutaja1" kui ka "kasutaja1:parool1" kujul -
+# arvesse võetakse ainult kooloni eelne osa.
+
+if [ $# -ne 1 ]; then
+    echo "Kasutamine: $0 failinimi"
+    exit 1
+fi
+
+while IFS=: read -r NIMI MUU || [ -n "$NIMI" ]; do
+    [ -z "$NIMI" ] && continue
+    if id "$NIMI" >/dev/null 2>&1; then
+        # -r kustutab ka kodukataloogi ja postkasti
+        userdel -r "$NIMI" 2>/dev/null
+        echo "Kasutaja $NIMI kustutatud"
+    else
+        echo "Kasutajat $NIMI pole olemas"
+    fi
+done < "$1"
