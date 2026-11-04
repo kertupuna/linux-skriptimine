@@ -7,7 +7,20 @@ set -e
 export DEBIAN_FRONTEND=noninteractive
 
 # 1. Vajalikud abipaketid
+# Skript tuleb käivitada root õigustes
+if [ "$(id -u)" -ne 0 ]; then
+    echo "Skript tuleb käivitada root õigustes (sudo ./lamp-install.sh)"
+    exit 1
+fi
 
+# Funktsioon: kas pakett on paigaldatud? (0 = jah, 1 = ei)
+on_paigaldatud() {
+    dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q "ok installed"
+}
+
+# Uuendame paketiloendit ja paigaldame abipaketid
+apt-get update
+apt-get install -y wget ca-certificates gnupg debconf-utils
 # 2. MySQL 8.0
 # Kontroll: kas MySQL 8.0 on olemas?
 # Kui ei ole:
