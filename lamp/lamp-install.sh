@@ -81,7 +81,38 @@ chmod 600 /root/.my.cnf
 # - Apache2 paigaldamine
 # - teenuse käivitamine
 # Apache default page
+if on_paigaldatud apache2; then
+    echo "Apache2 on juba paigaldatud."
+else
+    echo "Apache2 ei ole paigaldatud, paigaldan..."
+    apt-get install -y apache2
 
+    # Kontrollime tulemust
+    if on_paigaldatud apache2; then
+        echo "Apache2 paigaldamine õnnestus."
+    else
+        echo "VIGA: Apache2 paigaldamine ebaõnnestus!"
+        exit 1
+    fi
+fi
+
+# Teenus töötab ja käivitub koos süsteemiga
+systemctl enable --now apache2
+
+# Apache vaikimisi veebileht
+AEG=$(date "+%Y-%m-%d %H:%M:%S")
+cat > /var/www/html/index.html <<EOF
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>LAMP</title></head>
+<body>
+  <h1>LAMP server töötab!</h1>
+  <p>Õpilane: Kertu Puna</p>
+  <p>Grupp: ITS24</p>
+  <p>Paigaldatud: $AEG</p>
+</body>
+</html>
+EOF
 # 4. PHP 8.x
 # Kontroll: kas PHP 8.x on olemas?
 # Kui ei ole:
