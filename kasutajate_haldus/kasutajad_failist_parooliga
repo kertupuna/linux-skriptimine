@@ -1,6 +1,5 @@
 #!/bin/sh
 # Ülesanne 3 - kasutajad paroolidega failist
-# Autor: Kertu Puna
 #
 # Kasutamine:  sh kasutajad_failist_parooliga kasutajad_paroolid
 # Faili iga rida on kujul kasutajanimi:parool (parool avatud kujul).
@@ -33,13 +32,3 @@ while IFS=: read -r NIMI PAROOL || [ -n "$NIMI" ]; do
         echo "Probleem kasutaja $NIMI lisamisega"
         continue
     fi
-
-    # chpasswd loeb kuju kasutaja:parool ja kirjutab räsi /etc/shadow faili
-    echo "$NIMI:$PAROOL" | chpasswd
-    if [ $? -eq 0 ]; then
-        echo "Kasutaja $NIMI on lisatud koos parooliga"
-        grep "^$NIMI:" /etc/shadow
-    else
-        echo "Kasutaja $NIMI lisati, aga parooli määramine ebaõnnestus"
-    fi
-done < "$FAIL"
