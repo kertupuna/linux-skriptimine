@@ -1,0 +1,36 @@
+#!/bin/sh
+# Ülesanne 1 - kasutaja loomine käsurealise parameetri abil
+# Autor: Kertu Puna
+#
+# Kasutamine:  sh lisa_kasutaja kasutajanimi
+# Skript loob uue kasutaja (ilma paroolita) ja tema kodukataloogi /home/kasutajanimi.
+# useradd -m kopeerib kodukataloogi ka peidetud failid /etc/skel kaustast
+# (.bashrc, .profile, .bash_logout).
+
+# Kontrollime, et anti täpselt üks parameeter
+if [ $# -ne 1 ]; then
+    echo "Kasutamine: $0 kasutajanimi"
+    exit 1
+fi
+
+KASUTAJA="$1"
+
+# Kontrollime, kas selline kasutaja on juba olemas
+if id "$KASUTAJA" >/dev/null 2>&1; then
+    echo "Kasutaja $KASUTAJA on juba olemas!"
+    exit 2
+fi
+
+# Loome kasutaja: -m loob kodukataloogi, -d määrab selle asukoha, -s määrab shelli
+useradd -m -d "/home/$KASUTAJA" -s /bin/bash "$KASUTAJA"
+
+# Kontrollime useradd käsu tulemust
+if [ $? -eq 0 ]; then
+    echo "Kasutaja $KASUTAJA on lisatud süsteemi"
+    grep "^$KASUTAJA:" /etc/passwd     # kirje /etc/passwd failis
+    grep "^$KASUTAJA:" /etc/shadow     # kirje /etc/shadow failis (parooli pole: !)
+    ls -la "/home/$KASUTAJA"           # kodukataloogi sisu koos peidetud failidega
+else
+    echo "Probleem kasutaja $KASUTAJA lisamisega"
+    exit 3
+fi
