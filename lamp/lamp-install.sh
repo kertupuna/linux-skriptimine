@@ -141,3 +141,32 @@ echo "<?php phpinfo(); ?>" > /var/www/html/info.php
 # Apache taaskäivitus, et PHP moodul laaditaks
 systemctl restart apache2
 # 5. Kontrollid ja raport
+echo
+echo "========== LAMP REPORT =========="
+echo
+echo "Apache2:"
+echo "  Version:   $(apache2 -v | head -n 1)"
+echo "  Status:    $(systemctl is-active apache2 || true)"
+echo "  Autostart: $(systemctl is-enabled apache2 || true)"
+echo
+echo "PHP:"
+echo "  Version:   $(php -v | head -n 1)"
+echo
+echo "MySQL:"
+echo "  Version:   $(mysql --version)"
+echo "  Status:    $(systemctl is-active mysql || true)"
+echo "  Autostart: $(systemctl is-enabled mysql || true)"
+echo
+echo "Apache default page:"
+echo "  /var/www/html/index.html"
+echo "PHP test page:"
+echo "  /var/www/html/info.php"
+echo
+echo "MySQL root configuration:"
+if [ -f /root/.my.cnf ]; then
+    echo "  /root/.my.cnf - olemas"
+else
+    echo "  /root/.my.cnf - PUUDUB"
+fi
+echo
+echo "================================="
