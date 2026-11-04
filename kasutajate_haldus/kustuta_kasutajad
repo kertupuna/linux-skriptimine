@@ -1,6 +1,5 @@
 #!/bin/sh
 # Abiskript - testkasutajate kustutamine enne uut katsetust
-# Autor: Kertu Puna
 #
 # Kasutamine:  sh kustuta_kasutajad failinimi
 # Sobib nii failile "kasutaja1" kui ka "kasutaja1:parool1" kujul -
